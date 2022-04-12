@@ -27,10 +27,9 @@ class Titles(models.Model):
         Category,
         related_name='category',
         on_delete=models.SET_NULL,
-        blank=True,
         null=True,
     )
-    genres = models.ManyToManyField(
+    genre = models.ManyToManyField(
         Genre,
         through='GenreTitle'
     )
