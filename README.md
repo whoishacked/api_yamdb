@@ -56,7 +56,7 @@ python3 -m pip install --upgrade pip
 
 Устанавливаем зависимости:
 ```
-pip instal -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Запускаем проект:
