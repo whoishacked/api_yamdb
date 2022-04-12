@@ -47,3 +47,29 @@ class GenreTitle(models.Model):
         Titles,
         on_delete=models.CASCADE
     )
+
+
+class Review(models.Model):
+    """Review model."""
+    # author = models.ForeignKey(
+    #    User, on_delete=models.CASCADE, related_name='reviews')
+    text = models.TextField()
+    title_id = models.ForeignKey(
+        Titles,
+        on_delete=models.CASCADE
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
+
+
+class Comment(models.Model):
+    """Commentary model."""
+    # author = models.ForeignKey(
+    #    User, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    review_id = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
