@@ -1,7 +1,6 @@
-#  from django.contrib.auth import get_user_model
+from users.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-
-#  User = get_user_model()
 
 
 class Category(models.Model):
@@ -47,3 +46,35 @@ class GenreTitle(models.Model):
         Title,
         on_delete=models.CASCADE
     )
+
+
+class Review(models.Model):
+    """Review model."""
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reviews')
+    text = models.TextField()
+    title_id = models.ForeignKey(
+        Title,
+        related_name='reviews',
+        on_delete=models.CASCADE
+    )
+    score = models.PositiveIntegerField(
+        default=10,
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
+
+
+class Comment(models.Model):
+    """Commentary model."""
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    review_id = models.ForeignKey(
+        Review,
+        related_name='comments',
+        on_delete=models.CASCADE
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
