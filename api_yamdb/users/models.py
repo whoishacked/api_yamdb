@@ -1,10 +1,16 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
+USER = 'user'
+ADMIN = 'admin'
+MODERATOR = 'moderator'
+
+
 ROLES = (
-    ('user', 'Пользователь'),
-    ('admin', 'Администратор'),
-    ('moderator', 'Модератор'),
+    (USER, 'Пользователь'),
+    (ADMIN, 'Администратор'),
+    (MODERATOR, 'Модератор'),
 )
 
 
@@ -19,3 +25,11 @@ class User(AbstractUser):
                                 blank=True,
                                 null=True)
     email = models.EmailField('Адрес электронной почты')
+
+    class Meta:
+        ordering = ('id',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
