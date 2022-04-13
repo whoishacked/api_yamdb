@@ -59,6 +59,22 @@ python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+Создаем миграции:
+```
+python manage.py makemigrations
+```
+
+Выполняем миграции:
+```
+python manage.py migrate
+```
+
+Используем следующую команду для установки демо-данных из таблиц csv, которые
+находятся в папке `static/data/` проекта:
+```
+python manage.py load_csv_data
+```
+
 Запускаем проект:
 ```
 python3 manage.py runserver
@@ -161,8 +177,8 @@ POST /api/v1/titles/{title_id}/reviews/
 - Email:  lqw@mail.ru
 
 **Кутузов Андрей:**
-- Email: britvill@gmail.com
 - Telegram: @andrewkutuzov
+- Email: britvill@gmail.com
 
 **Малых Денис**
 - Telegram: @denchomal
