@@ -20,7 +20,7 @@ class Genre(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.IntegerField()
     category = models.ForeignKey(
@@ -44,6 +44,6 @@ class GenreTitle(models.Model):
         on_delete=models.CASCADE
     )
     title_id = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE
     )
