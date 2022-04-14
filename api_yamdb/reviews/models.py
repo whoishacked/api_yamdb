@@ -58,7 +58,6 @@ class Review(models.Model):
         Title, on_delete=models.CASCADE, related_name='reviews'
     )
     score = models.PositiveIntegerField(
-        default=10,
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField(
