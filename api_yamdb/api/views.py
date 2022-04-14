@@ -1,12 +1,17 @@
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, views, status
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
+from django.core.mail import EmailMessage
 
 from reviews.models import Category, Genre, Title
 from users.models import User
 from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
-                          UserSerializer, ReviewSerializer)
+                          UserSerializer, ReviewSerializer, UserRegSerializer)
+from .mixins import CreateViewSet
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -54,3 +59,28 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs['id'])
         serializer.save(author=self.request.user, title=title)
+
+
+class UserRegViewSet(CreateViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserRegSerializer
+    lookup_field = 'username'
+
+    def perform_create(self, serializer):
+        serializer.save()
+        username = serializer.data.get('username')
+        user = User.objects.get(username=username)
+        print(user.confirmation_code)
+
+
+class RegAPIView(views.APIView):
+
+    def post(self, request):
+        username = request.data.get('username', [])
+        if username:
+            user = get_object_or_404(User, username=username)
+            token = RefreshToken.for_user(user).access_token
+            return Response({"token": str(token)}, status=status.HTTP_200_OK)
+        else:
+            return Response({"field_name": ['user']},
+                            status=status.HTTP_400_BAD_REQUEST)
