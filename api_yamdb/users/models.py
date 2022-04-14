@@ -18,7 +18,7 @@ ROLES = (
 )
 
 
-def confirmation_code():
+def get_confirmation_code():
     random_num = str(random.random())
     data_time = str(datetime.datetime.now())
     hash_object = random_num + data_time
@@ -41,7 +41,7 @@ class User(AbstractUser):
     confirmation_code = models.CharField(
         'код подтверждения',
         max_length=255,
-        default=confirmation_code()
+        default=get_confirmation_code()
     )
 
     class Meta:
