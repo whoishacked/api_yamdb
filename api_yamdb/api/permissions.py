@@ -24,3 +24,4 @@ class Administrator(permissions.BasePermission):
             user = request.user
             return user.role == ADMIN or user.is_superuser
         return False
+

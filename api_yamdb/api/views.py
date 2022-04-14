@@ -9,7 +9,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
-from .permissions import ReadOnly, Moderator, Administrator
+from .permissions import (ReadOnly, Moderator, Administrator)
 from reviews.models import Category, Genre, Title
 from users.models import User
 from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
@@ -70,6 +70,10 @@ class UserViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,),
         url_path='me')
     def get_current_user_info(self, request):
+        serializer = UserSerializer(request.user)
+        if 'role' in request.data:
+            return Response(serializer.data,
+                            status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'PATCH':
             serializer = UserSerializer(
                 request.user,
@@ -79,8 +83,6 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-        serializer = UserSerializer(request.user)
 
         return Response(serializer.data)
 
