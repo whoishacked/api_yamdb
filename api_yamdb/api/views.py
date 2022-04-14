@@ -44,7 +44,7 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitlePostPatchSerializer
         return TitleSerializer 
 
-
+      
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
