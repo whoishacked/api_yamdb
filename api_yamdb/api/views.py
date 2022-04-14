@@ -38,6 +38,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre')
     pagination_class = LimitOffsetPagination
+    
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PATCH']:
+            return TitlePostPatchSerializer
+        return TitleSerializer 
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
