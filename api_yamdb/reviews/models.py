@@ -55,7 +55,7 @@ class Review(models.Model):
         User, on_delete=models.CASCADE, related_name='reviews')
     text = models.TextField()
     title = models.ForeignKey(
-        Title, related_name='reviews', on_delete=models.CASCADE
+        Title, on_delete=models.CASCADE, related_name='reviews'
     )
     score = models.PositiveIntegerField(
         default=10,
@@ -64,6 +64,9 @@ class Review(models.Model):
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
+    def __str__(self):
+        return self.text
+
 
 class Comment(models.Model):
     """Commentary model."""
@@ -71,7 +74,10 @@ class Comment(models.Model):
         User, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
     review = models.ForeignKey(
-        Review, related_name='comments', on_delete=models.CASCADE
+        Review, on_delete=models.CASCADE, related_name='comments'
     )
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return self.text
