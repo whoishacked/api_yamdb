@@ -44,11 +44,6 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitlePostPatchSerializer
         return TitleSerializer 
 
-    def get_serializer_class(self):
-        if self.request.method in ['POST', 'PATCH']:
-            return TitlePostPatchSerializer
-        return TitleSerializer
-
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
