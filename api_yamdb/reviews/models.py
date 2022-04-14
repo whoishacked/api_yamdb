@@ -22,9 +22,10 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.IntegerField()
+    description = models.TextField(blank=True)
     category = models.ForeignKey(
         Category,
-        related_name='category',
+        related_name='titles',
         on_delete=models.SET_NULL,
         null=True,
     )
@@ -38,11 +39,11 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    genre_id = models.ForeignKey(
+    genre = models.ForeignKey(
         Genre,
         on_delete=models.CASCADE
     )
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE
     )
@@ -53,7 +54,7 @@ class Review(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews')
     text = models.TextField()
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         Title, related_name='reviews', on_delete=models.CASCADE
     )
     score = models.PositiveIntegerField(
@@ -69,7 +70,7 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
-    review_id = models.ForeignKey(
+    review = models.ForeignKey(
         Review, related_name='comments', on_delete=models.CASCADE
     )
     pub_date = models.DateTimeField(

@@ -1,24 +1,9 @@
+from datetime import datetime
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from reviews.models import Title, Category, Genre, Review
 from users.models import User
-
-
-class TitleSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
-        queryset=Category.objects.all(),
-        slug_field='slug'
-    )
-    genre = serializers.SlugRelatedField(
-        queryset=Genre.objects.all(),
-        slug_field='slug',
-        many=True
-    )
-
-    class Meta:
-        fields = '__all__'
-        model = Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -35,6 +20,37 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug',)
         model = Genre
         lookup_field = 'slug'
+        
+        
+class TitlePostPatchSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Title
+        
+    def validate_year(self, value):
+        year = datetime.today().year
+        if year < value:
+            raise serializers.ValidationError('Проверьте год выпуска!')
+        return value
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+
+    class Meta:
+        fields = '__all__'
+        model = Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):

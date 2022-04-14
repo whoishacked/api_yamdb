@@ -1,7 +1,6 @@
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, filters, views, status
+from rest_framework.generics import get_object_or_404
+from rest_framework import viewsets, filters, views, status, mixins
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
@@ -10,7 +9,8 @@ from django.core.mail import EmailMessage
 from reviews.models import Category, Genre, Title
 from users.models import User
 from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
-                          UserSerializer, ReviewSerializer, UserRegSerializer)
+                          TitlePostPatchSerializer, UserSerializer,
+                          ReviewSerializer, UserRegSerializer)
 from .mixins import CreateViewSet
 
 
@@ -26,7 +26,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    filter_backends = (filters.SearchFilter)
+    filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     pagination_class = LimitOffsetPagination
     lookup_field = 'slug'
@@ -38,6 +38,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre')
     pagination_class = LimitOffsetPagination
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PATCH']:
+            return TitlePostPatchSerializer
+        return TitleSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
