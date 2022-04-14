@@ -4,7 +4,7 @@ from rest_framework import viewsets, filters, views, status, mixins
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
-from django.core.mail import EmailMessage
+from django.core.mail import send_mail
 
 from reviews.models import Category, Genre, Title
 from users.models import User
@@ -76,6 +76,13 @@ class UserRegViewSet(CreateViewSet):
         username = serializer.data.get('username')
         user = User.objects.get(username=username)
         print(user.confirmation_code)
+        send_mail(
+            subject='Код подтверждения для регистрации на yamdb',
+            message=f'Ваш код подтверждения: {user.confirmation_code}',
+            from_email='from@example.com',
+            recipient_list=[f'{user.email}'],
+            fail_silently=False,
+        )
 
 
 class RegAPIView(views.APIView):
@@ -87,5 +94,5 @@ class RegAPIView(views.APIView):
             token = RefreshToken.for_user(user).access_token
             return Response({"token": str(token)}, status=status.HTTP_200_OK)
         else:
-            return Response({"field_name": ['user']},
+            return Response({"field_name": ['username']},
                             status=status.HTTP_400_BAD_REQUEST)
