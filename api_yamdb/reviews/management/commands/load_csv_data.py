@@ -71,8 +71,8 @@ class Command(BaseCommand):
                         if model == GenreTitle:
                             GenreTitle.objects.create(
                                 id=row['id'],
-                                title_id=Title.objects.get(id=row['title_id']),
-                                genre_id=Genre.objects.get(id=row['genre_id']),
+                                title=Title.objects.get(id=row['title_id']),
+                                genre=Genre.objects.get(id=row['genre_id']),
                             )
                         if model == Review:
                             Review.objects.create(
