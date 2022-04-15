@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.db.models import Avg
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Title, Category, Genre, Review, Comment
 from users.models import User

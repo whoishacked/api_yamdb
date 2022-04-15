@@ -6,11 +6,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
 from django.core.mail import send_mail
 from rest_framework.exceptions import ParseError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.decorators import action
 
 from reviews.models import Category, Genre, Title, Review
-from .permissions import (ReadOnly, Moderator, Administrator)
+from .permissions import (ReadOnly, Moderator, Administrator, OwnerOrReadOnly)
 from users.models import User
 from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
                           TitlePostPatchSerializer, UserSerializer,
@@ -92,6 +93,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Reviews."""
     serializer_class = ReviewSerializer
 
+    permission_classes = (IsAuthenticatedOrReadOnly,
+                          OwnerOrReadOnly)
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return (ReadOnly(),)
+        return super().get_permissions()
+
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['id'])
         queryset = title.reviews.all()
@@ -105,6 +114,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     """Comments."""
     serializer_class = CommentSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,
+                          OwnerOrReadOnly)
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return (ReadOnly(),)
+        return super().get_permissions()
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs['id'])
