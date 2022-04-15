@@ -125,9 +125,8 @@ class UserRegViewSet(CreateViewSet):
         data = request.data
         serializer = self.get_serializer(data=data)
         username = data.get('username')
-        if not User.objects.filter(username=username).exists():
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         user = User.objects.get(username=username)
         send_mail(
             subject='Код подтверждения для регистрации на yamdb',
