@@ -92,21 +92,17 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class UserRegSerializer(serializers.ModelSerializer):
 
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-    username = serializers.CharField(
-        max_length=150,
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError('Проверьте год выпуска!')
+        return value
 
     class Meta:
         fields = ('username', 'email')
         model = User
 
 
-class UserSerializer(UserRegSerializer):
-
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio', 'role')
