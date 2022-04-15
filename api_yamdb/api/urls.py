@@ -2,7 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from .views import (TitleViewSet, CategoryViewSet, GenreViewSet, UserViewSet,
-                    ReviewViewSet, UserRegViewSet, RegAPIView)
+                    ReviewViewSet, UserRegViewSet, RegAPIView, CommentViewSet)
 
 app_name = 'api'
 
@@ -13,6 +13,8 @@ router.register('genres', GenreViewSet, basename='genres')
 router.register('users', UserViewSet)
 router.register(r'titles/(?P<id>\d+)/reviews', ReviewViewSet,
                 basename="reviews")
+router.register(r'titles/\d+/reviews/(?P<id>\d+)/comments', CommentViewSet,
+                basename="comments")
 router.register('auth/signup', UserRegViewSet)
 
 

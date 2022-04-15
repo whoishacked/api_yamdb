@@ -3,7 +3,7 @@ from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import Title, Category, Genre, Review
+from reviews.models import Title, Category, Genre, Review, Comment
 from users.models import User
 
 
@@ -75,27 +75,34 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment
 
 
 class UserRegSerializer(serializers.ModelSerializer):
 
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-    username = serializers.CharField(
-        max_length=150,
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError('Проверьте год выпуска!')
+        return value
 
     class Meta:
         fields = ('username', 'email')
         model = User
 
 
-class UserSerializer(UserRegSerializer):
-
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio', 'role')
