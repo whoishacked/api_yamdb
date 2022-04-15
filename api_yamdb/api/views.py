@@ -9,12 +9,13 @@ from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
+from reviews.models import Category, Genre, Title, Review
 from .permissions import (ReadOnly, Moderator, Administrator)
-from reviews.models import Category, Genre, Title
 from users.models import User
 from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
                           TitlePostPatchSerializer, UserSerializer,
-                          ReviewSerializer, UserRegSerializer)
+                          ReviewSerializer, UserRegSerializer,
+                          CommentSerializer)
 from .mixins import CreateViewSet
 
 
@@ -93,12 +94,26 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['id'])
-        queryset = title.reviews
+        queryset = title.reviews.all()
         return queryset
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs['id'])
         serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """Comments."""
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, id=self.kwargs['id'])
+        queryset = review.comments.all()
+        return queryset
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(Review, id=self.kwargs['id'])
+        serializer.save(author=self.request.user, review=review)
 
 
 class UserRegViewSet(CreateViewSet):

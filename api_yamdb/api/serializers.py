@@ -1,8 +1,9 @@
 from datetime import datetime
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import Title, Category, Genre, Review
+from reviews.models import Title, Category, Genre, Review, Comment
 from users.models import User
 
 
@@ -32,6 +33,7 @@ class TitlePostPatchSerializer(serializers.ModelSerializer):
         slug_field='slug',
         many=True
     )
+    rating = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         fields = '__all__'
@@ -42,15 +44,28 @@ class TitlePostPatchSerializer(serializers.ModelSerializer):
         if year < value:
             raise serializers.ValidationError('Проверьте год выпуска!')
         return value
-
+    
+    def get_rating(self, obj):
+        if obj.reviews.all():
+            rating = obj.reviews.aggregate(Avg('score'))
+            return int(rating.get('score__avg'))
+        return 0
+        
 
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
+    rating = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         fields = '__all__'
         model = Title
+        
+    def get_rating(self, obj):
+        if obj.reviews.all():
+            rating = obj.reviews.aggregate(Avg('score'))
+            return int(rating.get('score__avg'))
+        return 0
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -60,8 +75,19 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment
 
 
 class UserRegSerializer(serializers.ModelSerializer):
