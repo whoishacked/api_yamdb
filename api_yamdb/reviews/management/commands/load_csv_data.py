@@ -1,11 +1,11 @@
 import sys
 from csv import DictReader
 from os.path import exists
-from django.core.management import BaseCommand
-from django.contrib.staticfiles.finders import find
-from reviews.models import (Title, Category, Comment, Genre, GenreTitle, User,
-                            Review)
 
+from django.contrib.staticfiles.finders import find
+from django.core.management import BaseCommand
+from reviews.models import (Category, Comment, Genre, GenreTitle, Review,
+                            Title, User)
 
 DATA_MODEL = {
     'users': User,
@@ -19,7 +19,7 @@ DATA_MODEL = {
 
 
 class Command(BaseCommand):
-
+    """Command for load csv data to database."""
     def handle(self, *args, **options):
 
         for filename, model in DATA_MODEL.items():

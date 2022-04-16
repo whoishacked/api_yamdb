@@ -1,10 +1,9 @@
 import datetime
-import random
 import hashlib
+import random
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
 
 USER = 'user'
 ADMIN = 'admin'
@@ -27,7 +26,7 @@ def get_confirmation_code():
 
 
 class User(AbstractUser):
-
+    """User model customization class."""
     bio = models.TextField('Биография', blank=True, null=True)
     role = models.CharField('Роль пользователя',
                             max_length=16,

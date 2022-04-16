@@ -1,24 +1,24 @@
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.generics import get_object_or_404
-from rest_framework import viewsets, filters, views, status, permissions
-from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.pagination import PageNumberPagination
 from django.core.mail import send_mail
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, views, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
+from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
-from rest_framework.decorators import action
-
-from reviews.models import Category, Genre, Title, Review
-from .permissions import (ReadOnly, Moderator, Administrator, OwnerOrReadOnly)
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
-                          TitlePostPatchSerializer, UserSerializer,
-                          ReviewSerializer, UserRegSerializer,
-                          CommentSerializer)
-from .mixins import CreateViewSet, CreateListDestroyViewSet
+
 from .filters import TitleFilter
+from .mixins import CreateListDestroyViewSet, CreateViewSet
+from .permissions import Administrator, OwnerOrReadOnly, ReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer,
+                          TitlePostPatchSerializer, TitleSerializer,
+                          UserRegSerializer, UserSerializer)
 
 
 def get_object_or_400(model, **kwargs):
@@ -30,7 +30,7 @@ def get_object_or_400(model, **kwargs):
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
-    """Categories."""
+    """Categories for titles viewset."""
     queryset = Category.objects.all().order_by('id')
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
@@ -46,7 +46,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
 
 
 class GenreViewSet(CreateListDestroyViewSet):
-    """Genres."""
+    """Genres viewset."""
     queryset = Genre.objects.all().order_by('id')
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
@@ -63,7 +63,7 @@ class GenreViewSet(CreateListDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    """Titles."""
+    """Titles viewset."""
     queryset = Title.objects.all().order_by('id')
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -84,6 +84,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """User viewset."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = PageNumberPagination
@@ -114,9 +115,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """Reviews."""
+    """Reviews viewset."""
     serializer_class = ReviewSerializer
-
     permission_classes = (IsAuthenticatedOrReadOnly,
                           OwnerOrReadOnly)
 
@@ -150,7 +150,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """Comments."""
+    """Comments viewset."""
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,
                           OwnerOrReadOnly)
@@ -171,6 +171,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class UserRegViewSet(CreateViewSet):
+    """Users register viewset."""
     queryset = User.objects.all()
     serializer_class = UserRegSerializer
     lookup_field = 'username'
@@ -194,7 +195,7 @@ class UserRegViewSet(CreateViewSet):
 
 
 class RegAPIView(views.APIView):
-
+    """Refresh token."""
     def post(self, request):
         username = request.data.get('username', [])
         if not username:

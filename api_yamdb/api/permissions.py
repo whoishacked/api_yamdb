@@ -3,13 +3,13 @@ from users.models import ADMIN, MODERATOR
 
 
 class ReadOnly(permissions.BasePermission):
-
+    """Read only permission."""
     def has_permission(self, request, view):
         return request.method in permissions.SAFE_METHODS
     
 
 class Moderator(permissions.BasePermission):
-
+    """Moderator role permission."""
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             user = request.user
@@ -18,7 +18,7 @@ class Moderator(permissions.BasePermission):
 
 
 class Administrator(permissions.BasePermission):
-
+    """Administrator role permission."""
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             user = request.user

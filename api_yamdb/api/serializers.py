@@ -1,14 +1,13 @@
 from datetime import datetime
+
 from django.db.models import Avg
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-
-from reviews.models import Title, Category, Genre, Review, Comment
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
+    """Category serializer."""
     class Meta:
         fields = ('name', 'slug',)
         model = Category
@@ -16,7 +15,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
+    """Genre serializer."""
     class Meta:
         fields = ('name', 'slug',)
         model = Genre
@@ -24,6 +23,7 @@ class GenreSerializer(serializers.ModelSerializer):
         
         
 class TitlePostPatchSerializer(serializers.ModelSerializer):
+    """Title patch & post serializer."""
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         slug_field='slug'
@@ -53,6 +53,7 @@ class TitlePostPatchSerializer(serializers.ModelSerializer):
         
 
 class TitleSerializer(serializers.ModelSerializer):
+    """Title serializer."""
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
     rating = serializers.SerializerMethodField(read_only=True)
@@ -69,6 +70,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Review serializer."""
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username'
@@ -80,6 +82,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Comment serializer."""
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username'
@@ -91,7 +94,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserRegSerializer(serializers.ModelSerializer):
-
+    """User registration serializer."""
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError('Проверьте год выпуска!')
@@ -103,6 +106,7 @@ class UserRegSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """User serializer."""
     class Meta:
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio', 'role')
