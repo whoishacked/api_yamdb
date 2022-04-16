@@ -6,11 +6,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
 from django.core.mail import send_mail
 from rest_framework.exceptions import ParseError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.decorators import action
 
 from reviews.models import Category, Genre, Title, Review
-from .permissions import (ReadOnly, Moderator, Administrator)
+from .permissions import (ReadOnly, Moderator, Administrator, OwnerOrReadOnly)
 from users.models import User
 from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
                           TitlePostPatchSerializer, UserSerializer,
@@ -92,10 +93,32 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Reviews."""
     serializer_class = ReviewSerializer
 
+    permission_classes = (IsAuthenticatedOrReadOnly,
+                          OwnerOrReadOnly)
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return (ReadOnly(),)
+        return super().get_permissions()
+
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['id'])
         queryset = title.reviews.all()
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        title = get_object_or_404(Title, id=self.kwargs['id'])
+        review = Review.objects.filter(author=self.request.user, title=title)
+        if review.exists():
+            content = {
+                'Ошибка:': 'Вы уже оставляли отзыв к данному произведению'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs['id'])
@@ -105,6 +128,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     """Comments."""
     serializer_class = CommentSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,
+                          OwnerOrReadOnly)
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return (ReadOnly(),)
+        return super().get_permissions()
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs['id'])
