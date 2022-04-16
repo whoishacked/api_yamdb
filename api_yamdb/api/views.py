@@ -1,9 +1,9 @@
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.generics import get_object_or_404
-from rest_framework import viewsets, filters, views, status, mixins
+from rest_framework import viewsets, filters, views, status, permissions
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 from django.core.mail import send_mail
 from rest_framework.exceptions import ParseError
 from rest_framework.permissions import (IsAuthenticated,
@@ -17,7 +17,8 @@ from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
                           TitlePostPatchSerializer, UserSerializer,
                           ReviewSerializer, UserRegSerializer,
                           CommentSerializer)
-from .mixins import CreateViewSet
+from .mixins import CreateViewSet, CreateListDestroyViewSet
+from .filters import TitleFilter
 
 
 def get_object_or_400(model, **kwargs):
@@ -28,41 +29,64 @@ def get_object_or_400(model, **kwargs):
     return instance
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+class CategoryViewSet(CreateListDestroyViewSet):
+    """Categories."""
+    queryset = Category.objects.all().order_by('id')
     serializer_class = CategorySerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name',)
-    pagination_class = LimitOffsetPagination
+    pagination_class = PageNumberPagination
     lookup_field = 'slug'
+    permission_classes = (Administrator,)
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return (ReadOnly(),)
+        return super().get_permissions() 
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all()
+class GenreViewSet(CreateListDestroyViewSet):
+    """Genres."""
+    queryset = Genre.objects.all().order_by('id')
     serializer_class = GenreSerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name',)
-    pagination_class = LimitOffsetPagination
+    pagination_class = PageNumberPagination
     lookup_field = 'slug'
+    permission_classes = (Administrator,)
+    
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return (ReadOnly(),)
+        return super().get_permissions() 
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    """Titles."""
+    queryset = Title.objects.all().order_by('id')
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre')
-    pagination_class = LimitOffsetPagination
-
+    pagination_class = PageNumberPagination
+    permission_classes = (Administrator,)
+    filterset_class = TitleFilter
+    
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
             return TitlePostPatchSerializer
         return TitleSerializer
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return (ReadOnly(),)
+        return super().get_permissions()
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    pagination_class = LimitOffsetPagination
+    pagination_class = PageNumberPagination
     lookup_field = 'username'
     permission_classes = (Administrator,)
 

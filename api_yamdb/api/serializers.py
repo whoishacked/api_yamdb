@@ -49,7 +49,7 @@ class TitlePostPatchSerializer(serializers.ModelSerializer):
         if obj.reviews.all():
             rating = obj.reviews.aggregate(Avg('score'))
             return int(rating.get('score__avg'))
-        return 0
+        return None
         
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -65,7 +65,7 @@ class TitleSerializer(serializers.ModelSerializer):
         if obj.reviews.all():
             rating = obj.reviews.aggregate(Avg('score'))
             return int(rating.get('score__avg'))
-        return 0
+        return None
 
 
 class ReviewSerializer(serializers.ModelSerializer):
