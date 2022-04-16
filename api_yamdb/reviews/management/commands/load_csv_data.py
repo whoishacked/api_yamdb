@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
             if exists(csv_file):
                 try:
-                    for row in DictReader(open(csv_file)):
+                    for row in DictReader(open(csv_file, encoding='utf-8')):
                         if model == User:
                             User.objects.create(
                                 id=row['id'],
