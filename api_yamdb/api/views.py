@@ -42,7 +42,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
     def get_permissions(self):
         if self.request.method == 'GET':
             return (ReadOnly(),)
-        return super().get_permissions() 
+        return super().get_permissions()
 
 
 class GenreViewSet(CreateListDestroyViewSet):
@@ -58,7 +58,7 @@ class GenreViewSet(CreateListDestroyViewSet):
     def get_permissions(self):
         if self.request.method == 'GET':
             return (ReadOnly(),)
-        return super().get_permissions() 
+        return super().get_permissions()
 
 
 class TitleViewSet(viewsets.ModelViewSet):

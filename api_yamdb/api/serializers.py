@@ -21,7 +21,7 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         lookup_field = 'slug'
 
-        
+
 class TitlePostPatchSerializer(serializers.ModelSerializer):
     """Title patch & post serializer."""
     category = serializers.SlugRelatedField(
