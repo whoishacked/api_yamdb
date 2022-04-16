@@ -20,8 +20,7 @@ DATA_MODEL = {
 
 class Command(BaseCommand):
     """Command for load csv data to database."""
-    # flake8: noqa: C901
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: C901
         for filename, model in DATA_MODEL.items():
             if model.objects.exists():
                 print(f'В базе уже есть объекты {model.__name__}!')
