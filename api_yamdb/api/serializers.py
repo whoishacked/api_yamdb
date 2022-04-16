@@ -20,7 +20,7 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug',)
         model = Genre
         lookup_field = 'slug'
-        
+
         
 class TitlePostPatchSerializer(serializers.ModelSerializer):
     """Title patch & post serializer."""
@@ -38,19 +38,19 @@ class TitlePostPatchSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
-        
+
     def validate_year(self, value):
         year = datetime.today().year
         if year < value:
             raise serializers.ValidationError('Проверьте год выпуска!')
         return value
-    
+
     def get_rating(self, obj):
         if obj.reviews.all():
             rating = obj.reviews.aggregate(Avg('score'))
             return int(rating.get('score__avg'))
         return None
-        
+
 
 class TitleSerializer(serializers.ModelSerializer):
     """Title serializer."""
@@ -61,7 +61,7 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
-        
+
     def get_rating(self, obj):
         if obj.reviews.all():
             rating = obj.reviews.aggregate(Avg('score'))

@@ -6,7 +6,7 @@ class ReadOnly(permissions.BasePermission):
     """Read only permission."""
     def has_permission(self, request, view):
         return request.method in permissions.SAFE_METHODS
-    
+
 
 class Moderator(permissions.BasePermission):
     """Moderator role permission."""

@@ -21,7 +21,6 @@ DATA_MODEL = {
 class Command(BaseCommand):
     """Command for load csv data to database."""
     def handle(self, *args, **options):
-
         for filename, model in DATA_MODEL.items():
             if model.objects.exists():
                 print(f'В базе уже есть объекты {model.__name__}!')

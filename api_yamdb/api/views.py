@@ -38,7 +38,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
     permission_classes = (Administrator,)
-    
+
     def get_permissions(self):
         if self.request.method == 'GET':
             return (ReadOnly(),)
@@ -54,8 +54,7 @@ class GenreViewSet(CreateListDestroyViewSet):
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
     permission_classes = (Administrator,)
-    
-    
+
     def get_permissions(self):
         if self.request.method == 'GET':
             return (ReadOnly(),)
@@ -71,12 +70,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     permission_classes = (Administrator,)
     filterset_class = TitleFilter
-    
+
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
             return TitlePostPatchSerializer
         return TitleSerializer
-    
+
     def get_permissions(self):
         if self.request.method == 'GET':
             return (ReadOnly(),)
