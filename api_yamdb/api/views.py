@@ -106,6 +106,20 @@ class ReviewViewSet(viewsets.ModelViewSet):
         queryset = title.reviews.all()
         return queryset
 
+    def create(self, request, *args, **kwargs):
+        title = get_object_or_404(Title, id=self.kwargs['id'])
+        review = Review.objects.filter(author=self.request.user, title=title)
+        if review.exists():
+            content = {
+                'Ошибка:': 'Вы уже оставляли отзыв к данному произведению'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
+
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs['id'])
         serializer.save(author=self.request.user, title=title)
