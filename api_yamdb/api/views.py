@@ -67,7 +67,7 @@ class GenreViewSet(CreateListDestroyViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     """Titles viewset."""
     queryset = Title.objects.annotate(
-        rating=Avg('reviews__score')).order_by('id')
+        rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre')
@@ -130,7 +130,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['id'])
-        queryset = title.reviews.all().order_by('id')
+        queryset = title.reviews.all()
         return queryset
 
     def create(self, request, *args, **kwargs):
@@ -165,7 +165,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs['id'])
-        queryset = review.comments.all().order_by('id')
+        queryset = review.comments.all()
         return queryset
 
     def perform_create(self, serializer):
