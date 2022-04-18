@@ -67,7 +67,7 @@ class GenreViewSet(CreateListDestroyViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     """Titles viewset."""
     queryset = Title.objects.annotate(
-        rating=Avg('reviews__score'))
+        rating=Avg('reviews__score')).order_by('id')
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre')

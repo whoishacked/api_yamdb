@@ -93,9 +93,9 @@ class Review(models.Model):
         'Дата добавления', auto_now_add=True, db_index=True)
 
     class Meta:
-        ordering = ['id'],
-        verbose_name = 'Отзыв',
-        verbose_name_plural = 'Отзывы',
+        ordering = ['id']
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'title'],
