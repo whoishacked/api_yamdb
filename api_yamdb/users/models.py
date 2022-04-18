@@ -1,7 +1,3 @@
-import datetime
-import hashlib
-import random
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -9,20 +5,11 @@ USER = 'user'
 ADMIN = 'admin'
 MODERATOR = 'moderator'
 
-
 ROLES = (
     (USER, 'Пользователь'),
     (ADMIN, 'Администратор'),
     (MODERATOR, 'Модератор'),
 )
-
-
-def get_confirmation_code():
-    random_num = str(random.random())
-    data_time = str(datetime.datetime.now())
-    hash_object = random_num + data_time
-    hash_data = hashlib.md5(bytes(hash_object, encoding='utf8'))
-    return str(hash_data.hexdigest())
 
 
 class User(AbstractUser):
@@ -32,16 +19,24 @@ class User(AbstractUser):
                             max_length=16,
                             choices=ROLES,
                             default='user')
-    password = models.CharField('password',
+    password = models.CharField('Пароль',
                                 max_length=128,
                                 blank=True,
-                                null=True)
+                                null=True,
+                                default='')
     email = models.EmailField('Адрес электронной почты', unique=True)
-    confirmation_code = models.CharField(
-        'код подтверждения',
-        max_length=255,
-        default=get_confirmation_code()
-    )
+
+    @property
+    def is_user(self):
+        return self.role == USER
+
+    @property
+    def is_admin(self):
+        return self.role == ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == MODERATOR
 
     class Meta:
         ordering = ('id',)

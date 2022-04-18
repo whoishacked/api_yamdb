@@ -6,6 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
+from django.contrib.auth.tokens import default_token_generator
+
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -15,7 +17,7 @@ from users.models import User
 
 from .filters import TitleFilter
 from .mixins import CreateListDestroyViewSet, CreateViewSet
-from .permissions import Administrator, OwnerOrReadOnly, ReadOnly
+from .permissions import IsAdministrator, IsOwnerOrReadOnly, IsReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitlePostPatchSerializer, TitleSerializer,
@@ -38,11 +40,11 @@ class CategoryViewSet(CreateListDestroyViewSet):
     search_fields = ('name',)
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
-    permission_classes = (Administrator,)
+    permission_classes = (IsAdministrator,)
 
     def get_permissions(self):
         if self.request.method == 'GET':
-            return (ReadOnly(),)
+            return (IsReadOnly(),)
         return super().get_permissions()
 
 
@@ -54,11 +56,11 @@ class GenreViewSet(CreateListDestroyViewSet):
     search_fields = ('name',)
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
-    permission_classes = (Administrator,)
+    permission_classes = (IsAdministrator,)
 
     def get_permissions(self):
         if self.request.method == 'GET':
-            return (ReadOnly(),)
+            return (IsReadOnly(),)
         return super().get_permissions()
 
 
@@ -70,7 +72,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre')
     pagination_class = PageNumberPagination
-    permission_classes = (Administrator,)
+    permission_classes = (IsAdministrator,)
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
@@ -80,7 +82,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method == 'GET':
-            return (ReadOnly(),)
+            return (IsReadOnly(),)
         return super().get_permissions()
 
 
@@ -90,7 +92,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     pagination_class = PageNumberPagination
     lookup_field = 'username'
-    permission_classes = (Administrator,)
+    permission_classes = (IsAdministrator,)
 
     @action(
         methods=['GET', 'PATCH'],
@@ -119,11 +121,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Reviews viewset."""
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,
-                          OwnerOrReadOnly)
+                          IsOwnerOrReadOnly)
 
     def get_permissions(self):
         if self.action == 'retrieve':
-            return (ReadOnly(),)
+            return (IsReadOnly(),)
         return super().get_permissions()
 
     def get_queryset(self):
@@ -154,11 +156,11 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Comments viewset."""
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,
-                          OwnerOrReadOnly)
+                          IsOwnerOrReadOnly)
 
     def get_permissions(self):
         if self.action == 'retrieve':
-            return (ReadOnly(),)
+            return (IsReadOnly(),)
         return super().get_permissions()
 
     def get_queryset(self):
@@ -184,10 +186,11 @@ class UserRegViewSet(CreateViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user = User.objects.get(username=username)
+        confirmation_code = default_token_generator.make_token(user)
         send_mail(
             subject='Код подтверждения для регистрации на yamdb',
             message=f'Код подтверждения для пользователя {user.username}:'
-                    f' {user.confirmation_code}',
+                    f' {confirmation_code}',
             from_email='from@example.com',
             recipient_list=[f'{user.email}'],
             fail_silently=False
@@ -204,8 +207,8 @@ class RegAPIView(views.APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         user = get_object_or_404(User, username=username)
         confirmation_code = request.data.get('confirmation_code', [])
-        if confirmation_code != user.confirmation_code:
-            return Response({"field_name": ['confirmation_code']},
-                            status=status.HTTP_400_BAD_REQUEST)
-        token = RefreshToken.for_user(user).access_token
-        return Response({"token": str(token)}, status=status.HTTP_200_OK)
+        if default_token_generator.check_token(user, confirmation_code):
+            token = RefreshToken.for_user(user).access_token
+            return Response({"token": str(token)}, status=status.HTTP_200_OK)
+        return Response({"field_name": ['confirmation_code']},
+                        status=status.HTTP_400_BAD_REQUEST)
