@@ -1,5 +1,6 @@
 from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Avg
 from rest_framework import filters, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
@@ -31,7 +32,7 @@ def get_object_or_400(model, **kwargs):
 
 class CategoryViewSet(CreateListDestroyViewSet):
     """Categories for titles viewset."""
-    queryset = Category.objects.all().order_by('id')
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name',)
@@ -47,7 +48,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
 
 class GenreViewSet(CreateListDestroyViewSet):
     """Genres viewset."""
-    queryset = Genre.objects.all().order_by('id')
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name',)
@@ -63,7 +64,8 @@ class GenreViewSet(CreateListDestroyViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Titles viewset."""
-    queryset = Title.objects.all().order_by('id')
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).order_by('id')
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre')
