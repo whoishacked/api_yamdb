@@ -173,13 +173,9 @@ POST /api/v1/titles/{title_id}/reviews/
 
 ## Об авторах
 **Ершов Виталий**
-- Telegram: @VitalyIsName
-- Email:  lqw@mail.ru
 
 **Кутузов Андрей:**
 - Telegram: @andrewkutuzov
 - Email: britvill@gmail.com
 
 **Малых Денис**
-- Telegram: @denchomal
-- Email: malykhdk@ya.ru
